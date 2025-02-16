@@ -4,6 +4,8 @@ use std::{env, io};
 
 use grep::Grep;
 fn main() {
+    let l = "qwertyu".chars();
+
     let mut buf = String::new();
     let pattern = env::args().nth(1).expect("msg");
 
@@ -106,6 +108,21 @@ mod tests {
         // special chars should not be colored green
 
         let grep = Grep::new(r"\w".to_string(), "!-#$%^&".to_string());
+        assert!(grep.match_pattern().is_none());
+    }
+
+    #[test]
+    fn test_positive_chars_match() {
+        // Digits and chars that in [] should be colored green
+        let grep = Grep::new("[ea]".to_string(), "apple".to_string());
+        let out = format!("{}ppl{}", "a".green(), "e".green());
+        assert_eq!(grep.match_pattern().unwrap(), out);
+    }
+
+    #[test]
+    fn test_no_positive_chars_match() {
+        // Digits and chars that are not in [] should be not colored green
+        let grep = Grep::new("[m]".to_string(), "apple".to_string());
         assert!(grep.match_pattern().is_none());
     }
 }
