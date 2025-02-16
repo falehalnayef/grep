@@ -20,7 +20,7 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
-    use colored::*;
+    use colored::Colorize;
 
     #[test]
     fn test_digit_matching() {
@@ -91,5 +91,21 @@ mod tests {
             grep.match_pattern().unwrap(),
             format!("{}{}", "aa".green(), "aa".green())
         );
+    }
+
+    #[test]
+    fn test_alphanumeric_match() {
+        // Digits and chars should be colored green
+        let grep = Grep::new(r"\w".to_string(), "a-1".to_string());
+        let out = format!("{}-{}", "a".green(), "1".green());
+        assert_eq!(grep.match_pattern().unwrap(), out);
+    }
+
+    #[test]
+    fn test_no_alphanumeric_match() {
+        // special chars should not be colored green
+
+        let grep = Grep::new(r"\w".to_string(), "!-#$%^&".to_string());
+        assert!(grep.match_pattern().is_none());
     }
 }
