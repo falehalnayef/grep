@@ -4,13 +4,10 @@ use std::{env, io};
 
 use grep::Grep;
 fn main() {
-
     let mut buf = String::new();
     let pattern = env::args().nth(1).expect("msg");
 
-
     io::stdin().read_line(&mut buf).expect("msg");
-
 
     let g = Grep::new(pattern, buf);
 
@@ -19,5 +16,3 @@ fn main() {
         None => println!("Pattern not found!"),
     }
 }
-
-
