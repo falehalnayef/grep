@@ -11,7 +11,31 @@ impl Grep {
     }
 
     pub fn match_pattern(&self) -> Option<String> {
-        if self.pattern.starts_with('[') && self.pattern.ends_with(']') {
+        if self.pattern.starts_with("[^") && self.pattern.ends_with(']') && self.pattern.len() > 3 {
+            let mut it_has = false;
+
+            let pattern_chars: Vec<char> = self.pattern.chars().collect();
+
+            let result: String = self
+                .data
+                .chars()
+                .map(|c| {
+                    if !pattern_chars.contains(&c) {
+                        if !it_has {
+                            it_has = true
+                        };
+                        format!("{}", c.to_string().green())
+                    } else {
+                        c.to_string()
+                    }
+                })
+                .collect();
+            if it_has {
+                Some(result)
+            } else {
+                None
+            }
+        } else if self.pattern.starts_with('[') && self.pattern.ends_with(']') {
             let mut it_has_alphanum = false;
 
             let pattern_chars: Vec<char> = self.pattern.chars().collect();

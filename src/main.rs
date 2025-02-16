@@ -4,12 +4,12 @@ use std::{env, io};
 
 use grep::Grep;
 fn main() {
-    let l = "qwertyu".chars();
-
     let mut buf = String::new();
-    let pattern = env::args().nth(1).expect("msg");
+    let pattern = env::args().nth(1).expect("failed getting the arg");
 
-    io::stdin().read_line(&mut buf).expect("msg");
+    io::stdin()
+        .read_line(&mut buf)
+        .expect("failed reading the input");
 
     let g = Grep::new(pattern, buf);
 
@@ -124,5 +124,21 @@ mod tests {
         // Digits and chars that are not in [] should be not colored green
         let grep = Grep::new("[m]".to_string(), "apple".to_string());
         assert!(grep.match_pattern().is_none());
+    }
+
+    #[test]
+    fn test_negative_chars_match() {
+        // Digits and chars that in [^] should not be colored green
+        let grep = Grep::new("[^ea]".to_string(), "apple".to_string());
+        let out = format!("a{}{}{}e", "p".green(), "p".green(), "l".green());
+        assert_eq!(grep.match_pattern().unwrap(), out);
+    }
+
+    #[test]
+    fn test_no_negative_chars_match() {
+        // Digits and chars that are not in [^] should be colored green
+        let grep = Grep::new("[^m]".to_string(), "app".to_string());
+        let out = format!("{}{}{}", "a".green(), "p".green(), "p".green());
+        assert_eq!(grep.match_pattern().unwrap(), out);
     }
 }
