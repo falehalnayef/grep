@@ -1,22 +1,31 @@
 mod grep;
 
-use std::{env, io};
-
-use grep::Grep;
+use grep::{scanner::Scanner, scanner::Tokens, Grep};
+use std::{env, io, time};
 fn main() {
-    let mut buf = String::new();
-    let pattern = env::args().nth(1).expect("failed getting the arg");
+    let time = time::Instant::now();
+    let pattern = String::from(r"\d [a-zA-Z] [^abc] x");
+    let mut scanner = Scanner::new(pattern);
+    let tokens: &Tokens = scanner.scan();
 
-    io::stdin()
-        .read_line(&mut buf)
-        .expect("failed reading the input");
-
-    let g = Grep::new(pattern, buf);
-
-    match g.match_pattern() {
-        Some(colored_string) => println!("{}", colored_string),
-        None => println!("Pattern not found!"),
+    for token in tokens {
+        println!("{:?}", token);
     }
+    // println!("{:?}", time.elapsed());
+
+    // let mut buf = String::new();
+    // let pattern = env::args().nth(1).expect("failed getting the arg");
+
+    // io::stdin()
+    //     .read_line(&mut buf)
+    //     .expect("failed reading the input");
+
+    // let g = Grep::new(pattern, buf);
+
+    // match g.match_pattern() {
+    //     Some(colored_string) => println!("{}", colored_string),
+    //     None => println!("Pattern not found!"),
+    // }
 }
 
 #[cfg(test)]
