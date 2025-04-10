@@ -10,7 +10,7 @@ impl<'a> Matcher<'a> {
         Self { tokens }
     }
 
-    pub fn match_tokens(&self, input_data: String) -> bool {
+    pub fn match_tokens(&self, input_data: &String) -> bool {
         let chars: Vec<char> = input_data.chars().collect();
         let mut counter = 0;
 
@@ -53,7 +53,7 @@ impl<'a> Matcher<'a> {
                         pattern_chars,
                         &chars[counter..counter + matched]
                     );
-                    counter += matched - 1; // because it will increment by 1 at the end of the loop
+                    counter += matched - 1;
                 }
 
                 NoToken => {

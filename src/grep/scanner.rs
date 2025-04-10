@@ -11,13 +11,13 @@ pub enum Token {
     NoToken,
 }
 
-pub struct Scanner {
-    pattern: String,
+pub struct Scanner<'b> {
+    pattern: &'b String,
     tokens: Tokens,
 }
 
-impl Scanner {
-    pub fn new(pattern: String) -> Self {
+impl<'b> Scanner<'b> {
+    pub fn new(pattern: &'b String) -> Self {
         Self {
             pattern,
             tokens: Vec::new(),
