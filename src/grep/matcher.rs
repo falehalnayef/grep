@@ -41,12 +41,21 @@ impl<'a> Matcher<'a> {
                     println!("is alphanumeric {}", chars[counter]);
                 }
                 Group(positive, pattern_chars) => {
-                    if !Self::match_chars_group(*positive, &pattern_chars, chars[counter]) {
+                    let matched =
+                        Self::match_chars_group(*positive, pattern_chars, &chars[counter..]);
+
+                    if matched == 0 {
                         return false;
                     }
 
-                    println!("{:?} = {}", pattern_chars, chars[counter]);
+                    println!(
+                        "{:?} = {:?}",
+                        pattern_chars,
+                        &chars[counter..counter + matched]
+                    );
+                    counter += matched - 1; // because it will increment by 1 at the end of the loop
                 }
+
                 NoToken => {
                     continue;
                 }
@@ -70,11 +79,18 @@ impl<'a> Matcher<'a> {
         c1 == c2
     }
 
-    fn match_chars_group(positive: bool, pattern_chars: &Vec<char>, input_char: char) -> bool {
-        if positive {
-            pattern_chars.contains(&input_char)
-        } else {
-            !pattern_chars.contains(&input_char)
+    fn match_chars_group(positive: bool, pattern_chars: &Vec<char>, input_chars: &[char]) -> usize {
+        let mut matched = 0;
+
+        for &c in input_chars {
+            let contains = pattern_chars.contains(&c);
+            if (positive && contains) || (!positive && !contains) {
+                matched += 1;
+            } else {
+                break;
+            }
         }
+
+        matched
     }
 }
