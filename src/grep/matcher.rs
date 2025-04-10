@@ -1,41 +1,80 @@
-use super::scanner::Token;
+use super::scanner::{Token::*, Tokens};
+use std::char;
 
-pub fn match_tokens(tokens: &Token, input_data: String) {}
-
-pub fn match_digit(c: char) -> bool {
-    c.is_numeric()
+pub struct Matcher<'a> {
+    tokens: &'a Tokens,
 }
 
-pub fn match_alpha_numeric(c: char) -> bool {
-    c.is_alphanumeric()
-}
+impl<'a> Matcher<'a> {
+    pub fn new(tokens: &'a Tokens) -> Self {
+        Self { tokens }
+    }
 
-pub fn match_chars_group(group: Token, input_data: String) -> bool {
-    if let Token::Group(positive, pattern_chars) = group {
-        let mut data_chars = input_data.chars();
+    pub fn match_tokens(&self, input_data: String) -> bool {
+        let chars: Vec<char> = input_data.chars().collect();
+        let mut counter = 0;
 
-        let mut i = 0;
-
-        if positive {
-            while i < pattern_chars.len() {
-                if !data_chars.any(|c| c == *pattern_chars.get(i).expect("failed to get char")) {
-                    return false;
-                }
-
-                i += 1;
+        for token in self.tokens {
+            if counter >= chars.len() {
+                return false;
             }
-            true
-        } else {
-            while i < pattern_chars.len() {
-                if data_chars.any(|c| c == *pattern_chars.get(i).expect("failed to get char")) {
-                    return false;
-                }
 
-                i += 1;
+            match token {
+                Literal(c) => {
+                    if !Self::match_literal(*c, chars[counter]) {
+                        return false;
+                    }
+                    println!("{} = {}", c, chars[counter]);
+                }
+                Digit => {
+                    if !Self::match_digit(chars[counter]) {
+                        return false;
+                    }
+
+                    println!("is Digit {}", chars[counter]);
+                }
+                AlphaNumeric => {
+                    if !Self::match_alpha_numeric(chars[counter]) {
+                        return false;
+                    }
+
+                    println!("is alphanumeric {}", chars[counter]);
+                }
+                Group(positive, pattern_chars) => {
+                    if !Self::match_chars_group(*positive, &pattern_chars, chars[counter]) {
+                        return false;
+                    }
+
+                    println!("{:?} = {}", pattern_chars, chars[counter]);
+                }
+                NoToken => {
+                    continue;
+                }
             }
-            true
+
+            counter += 1;
         }
-    } else {
-        false
+
+        true
+    }
+
+    fn match_digit(c: char) -> bool {
+        c.is_numeric()
+    }
+
+    fn match_alpha_numeric(c: char) -> bool {
+        c.is_alphanumeric()
+    }
+
+    fn match_literal(c1: char, c2: char) -> bool {
+        c1 == c2
+    }
+
+    fn match_chars_group(positive: bool, pattern_chars: &Vec<char>, input_char: char) -> bool {
+        if positive {
+            pattern_chars.contains(&input_char)
+        } else {
+            !pattern_chars.contains(&input_char)
+        }
     }
 }

@@ -1,17 +1,19 @@
 mod grep;
 
-use grep::{scanner::Scanner, scanner::Tokens, Grep};
-use std::{env, io, time};
+use grep::{
+    matcher::Matcher,
+    scanner::{Scanner, Tokens},
+};
 fn main() {
-    let time = time::Instant::now();
-    let pattern = String::from(r"\d [a-zA-Z] [^abc] x");
+    let pattern = String::from(r"H\w\d[xyz]");
     let mut scanner = Scanner::new(pattern);
     let tokens: &Tokens = scanner.scan();
-
     for token in tokens {
         println!("{:?}", token);
     }
-    // println!("{:?}", time.elapsed());
+
+    let mut matcher = Matcher::new(tokens);
+    matcher.match_tokens("Ha3b".to_owned());
 
     // let mut buf = String::new();
     // let pattern = env::args().nth(1).expect("failed getting the arg");

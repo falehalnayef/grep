@@ -1,3 +1,4 @@
+pub mod matcher;
 pub mod scanner;
 
 use colored::Colorize;
