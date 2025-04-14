@@ -18,6 +18,8 @@ impl Grep {
         let mut scanner = Scanner::new(&self.pattern);
         let tokens = scanner.scan();
         let matcher = Matcher::new(tokens);
-        matcher.match_tokens(&self.data);
+        let (boolRes, strRes) = matcher.match_tokens(&self.data);
+
+        println!("{}", strRes);
     }
 }
