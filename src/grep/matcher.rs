@@ -15,8 +15,6 @@ impl<'a> Matcher<'a> {
         let mut res = String::new();
         let mut counter = 0;
 
-        println!("tokens: {:?}", self.tokens);
-
         // === Case: Only one Digit token — highlight all digits
         if self.tokens.len() == 1 && matches!(self.tokens[0], Token::Digit) {
             let mut found_digit = false;
