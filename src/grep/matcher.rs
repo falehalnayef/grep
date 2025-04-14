@@ -15,12 +15,17 @@ impl<'a> Matcher<'a> {
         let mut res = String::new();
         let mut counter = 0;
 
-        // === Case: Only one Digit token — highlight all digits ===
+        println!("tokens: {:?}", self.tokens);
+
+        // === Case: Only one Digit token — highlight all digits
         if self.tokens.len() == 1 && matches!(self.tokens[0], Token::Digit) {
+            let mut found_digit = false;
+
             let highlighted: String = chars
                 .iter()
                 .map(|c| {
                     if c.is_ascii_digit() {
+                        found_digit = true;
                         c.to_string().red().to_string()
                     } else {
                         c.to_string()
@@ -28,7 +33,34 @@ impl<'a> Matcher<'a> {
                 })
                 .collect();
 
-            return (true, highlighted);
+            return if found_digit {
+                (true, highlighted)
+            } else {
+                (false, "None".to_string())
+            };
+        }
+
+        // === Case: Only one AlphaNumeric token — highlight all alphanumerics
+        if self.tokens.len() == 1 && matches!(self.tokens[0], Token::AlphaNumeric) {
+            let mut found_alnum = false;
+
+            let highlighted: String = chars
+                .iter()
+                .map(|c| {
+                    if c.is_ascii_alphanumeric() {
+                        found_alnum = true;
+                        c.to_string().red().to_string()
+                    } else {
+                        c.to_string()
+                    }
+                })
+                .collect();
+
+            return if found_alnum {
+                (true, highlighted)
+            } else {
+                (false, "None".to_string())
+            };
         }
 
         // === Case: One literal — highlight all its appearances
@@ -51,14 +83,22 @@ impl<'a> Matcher<'a> {
                 .all(|t| matches!(t, Token::Literal(_) | Token::NoToken))
         {
             let lit = literals[0];
+            let mut found = false;
+
             for &c in &chars {
                 if c == lit {
+                    found = true;
                     res.push_str(&c.to_string().red().to_string());
                 } else {
                     res.push(c);
                 }
             }
-            return (true, res);
+
+            return if found {
+                (true, res)
+            } else {
+                (false, "None".to_string())
+            };
         }
 
         // === Case: Ordered literals — must be adjacent
@@ -88,7 +128,7 @@ impl<'a> Matcher<'a> {
             }
         }
 
-        // === General token stream match (strict)
+        // === General token stream match (strict order)
         let mut token_index = 0;
 
         while counter < chars.len() && token_index < self.tokens.len() {
@@ -136,7 +176,7 @@ impl<'a> Matcher<'a> {
 
                 Token::NoToken => {
                     res.push(chars[counter]);
-                    // Token index stays the same
+                    // Skip character but don't consume token
                 }
             }
 
@@ -147,6 +187,7 @@ impl<'a> Matcher<'a> {
             return (false, "None".to_string());
         }
 
+        // Append the rest
         while counter < chars.len() {
             res.push(chars[counter]);
             counter += 1;
