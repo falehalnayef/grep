@@ -63,6 +63,34 @@ impl<'a> Matcher<'a> {
             };
         }
 
+        // === Case: Only one Group token — match all chars according to group rules
+        if self.tokens.len() == 1 {
+            if let Token::Group(positive, pattern_chars) = &self.tokens[0] {
+                let mut found = false;
+
+                let highlighted: String = chars
+                    .iter()
+                    .map(|c| {
+                        let in_group = pattern_chars.contains(c);
+                        let should_color = (*positive && in_group) || (!*positive && !in_group);
+
+                        if should_color {
+                            found = true;
+                            c.to_string().red().to_string()
+                        } else {
+                            c.to_string()
+                        }
+                    })
+                    .collect();
+
+                return if found {
+                    (true, highlighted)
+                } else {
+                    (false, "None".to_string())
+                };
+            }
+        }
+
         // === Case: One literal — highlight all its appearances
         let literals: Vec<char> = self
             .tokens
